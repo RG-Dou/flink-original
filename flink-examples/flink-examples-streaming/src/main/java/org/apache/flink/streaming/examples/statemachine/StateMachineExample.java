@@ -124,8 +124,9 @@ public class StateMachineExample {
                     errorRate, sleep);
             System.out.println();
 
-            events = env.addSource(new EventsGeneratorSource(errorRate, sleep))
-                    .setParallelism(params.getInt("p1", 1));
+            events =
+                    env.addSource(new EventsGeneratorSource(errorRate, sleep))
+                            .setParallelism(params.getInt("p1", 1));
         }
 
         // ---- main program ----
@@ -140,10 +141,10 @@ public class StateMachineExample {
                         // partition on the address to make sure equal addresses
                         // end up in the same state machine flatMap function
                         .keyBy(Event::sourceAddress)
-                        .setParallelism(params.getInt("p1", 1))
 
                         // the function that evaluates the state machine over the sequence of events
                         .flatMap(new StateMachineMapper())
+                        .uid("state-operator")
                         .setParallelism(params.getInt("p1", 1));
 
         // output the alerts to std-out
@@ -159,8 +160,7 @@ public class StateMachineExample {
                                                     .withRolloverInterval(Duration.ofSeconds(10))
                                                     .build())
                                     .build())
-//                    .setParallelism(1)
-                    .setParallelism(params.getInt("p1", 1))
+                    .setParallelism(1)
                     .name("output");
         }
 

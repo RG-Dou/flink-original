@@ -48,6 +48,7 @@ public class EventsGeneratorSource extends RichParallelSourceFunction<Event> {
         final EventsGenerator generator = new EventsGenerator(errorProbability);
 
         final int range = Integer.MAX_VALUE / getRuntimeContext().getNumberOfParallelSubtasks();
+        System.out.println("index of this subtask: " + getRuntimeContext().getIndexOfThisSubtask());
         final int min = range * getRuntimeContext().getIndexOfThisSubtask();
         final int max = min + range;
 

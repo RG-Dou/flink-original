@@ -69,19 +69,16 @@ public class WindowJoin {
         // create the data sources for both grades and salaries
         DataStream<Tuple2<String, Integer>> grades =
                 GradeSource.getSource(env, rate)
-                        .setParallelism(params.getInt("p1", 1))
                         .assignTimestampsAndWatermarks(IngestionTimeWatermarkStrategy.create());
 
         DataStream<Tuple2<String, Integer>> salaries =
                 SalarySource.getSource(env, rate)
-                        .setParallelism(params.getInt("p1", 1))
                         .assignTimestampsAndWatermarks(IngestionTimeWatermarkStrategy.create());
 
         // run the actual window join program
         // for testability, this functionality is in a separate method.
         DataStream<Tuple3<String, Integer, Integer>> joinedStream =
-                runWindowJoin(grades, salaries, windowSize)
-                        .setParallelism(params.getInt("p1", 1));
+                runWindowJoin(grades, salaries, windowSize);
 
         // print the results with a single thread, rather than in parallel
         joinedStream.print()
