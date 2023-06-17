@@ -96,10 +96,14 @@ public class TopSpeedWindowing {
 
             carData =
                     env.fromSource(builder.build(), WatermarkStrategy.noWatermarks(), "file-input")
+                            .setParallelism(params.getInt("p1", 1))
                             .map(new ParseCarData())
+                            .setParallelism(params.getInt("p1", 1))
                             .name("parse-input");
         } else {
-            carData = env.addSource(CarSource.create(2)).name("in-memory-source");
+            carData = env.addSource(CarSource.create(2))
+                    .setParallelism(params.getInt("p1", 1))
+                    .name("in-memory-source");
         }
 
         int evictionSec = 10;
@@ -110,9 +114,13 @@ public class TopSpeedWindowing {
                                         .<Tuple4<Integer, Integer, Double, Long>>
                                                 forMonotonousTimestamps()
                                         .withTimestampAssigner((car, ts) -> car.f3))
+                        .setParallelism(params.getInt("p1", 1))
                         .keyBy(value -> value.f0)
+                        .setParallelism(params.getInt("p1", 1))
                         .window(GlobalWindows.create())
+                        .setParallelism(params.getInt("p1", 1))
                         .evictor(TimeEvictor.of(Time.of(evictionSec, TimeUnit.SECONDS)))
+                        .setParallelism(params.getInt("p1", 1))
                         .trigger(
                                 DeltaTrigger.of(
                                         triggerMeters,
@@ -130,7 +138,9 @@ public class TopSpeedWindowing {
                                             }
                                         },
                                         carData.getType().createSerializer(env.getConfig())))
-                        .maxBy(1);
+                        .setParallelism(params.getInt("p1", 1))
+                        .maxBy(1)
+                        .setParallelism(params.getInt("p1", 1));
 
         if (params.getOutput().isPresent()) {
             // Given an output directory, Flink will write the results to a file
@@ -146,6 +156,7 @@ public class TopSpeedWindowing {
                                                     .withRolloverInterval(Duration.ofSeconds(10))
                                                     .build())
                                     .build())
+                    .setParallelism(params.getInt("p1", 1))
                     .name("file-sink");
         } else {
             topSpeeds.print();

@@ -113,7 +113,8 @@ public class StateMachineExample {
                             .build();
             events =
                     env.fromSource(
-                            source, WatermarkStrategy.noWatermarks(), "StateMachineExampleSource");
+                            source, WatermarkStrategy.noWatermarks(), "StateMachineExampleSource")
+                            .setParallelism(params.getInt("p1", 1));
         } else {
             double errorRate = params.getDouble("error-rate", 0.0);
             int sleep = params.getInt("sleep", 1);
@@ -123,7 +124,8 @@ public class StateMachineExample {
                     errorRate, sleep);
             System.out.println();
 
-            events = env.addSource(new EventsGeneratorSource(errorRate, sleep));
+            events = env.addSource(new EventsGeneratorSource(errorRate, sleep))
+                    .setParallelism(params.getInt("p1", 1));
         }
 
         // ---- main program ----
@@ -138,9 +140,11 @@ public class StateMachineExample {
                         // partition on the address to make sure equal addresses
                         // end up in the same state machine flatMap function
                         .keyBy(Event::sourceAddress)
+                        .setParallelism(params.getInt("p1", 1))
 
                         // the function that evaluates the state machine over the sequence of events
-                        .flatMap(new StateMachineMapper());
+                        .flatMap(new StateMachineMapper())
+                        .setParallelism(params.getInt("p1", 1));
 
         // output the alerts to std-out
         if (outputFile == null) {
@@ -155,7 +159,8 @@ public class StateMachineExample {
                                                     .withRolloverInterval(Duration.ofSeconds(10))
                                                     .build())
                                     .build())
-                    .setParallelism(1)
+//                    .setParallelism(1)
+                    .setParallelism(params.getInt("p1", 1))
                     .name("output");
         }
 
