@@ -52,7 +52,7 @@ public class CarSource implements SourceFunction<Tuple4<Integer, Integer, Double
             throws Exception {
 
         while (isRunning) {
-            Thread.sleep(100);
+//            Thread.sleep(100);
             for (int carId = 0; carId < speeds.length; carId++) {
                 if (rand.nextBoolean()) {
                     speeds[carId] = Math.min(100, speeds[carId] + 5);
